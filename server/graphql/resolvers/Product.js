@@ -57,6 +57,7 @@ const Products = async (_, { filters = {}, options = {} }) => {
     return error;
   }
 };
+const productsTotal = async () => await Product.count();
 const Product_register = async (_, { productData }) => {
   try {
     const {
@@ -146,6 +147,7 @@ const subNewProduct = {
 export const productResolvers = {
   Query: {
     Products,
+    productsTotal,
   },
   Mutation: {
     Product_save,

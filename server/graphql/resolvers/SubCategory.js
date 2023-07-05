@@ -1,14 +1,28 @@
 import SubCategory from "../../models/SubCategory.js";
 import { v4 as uuidv4 } from "uuid";
+import pkg from "@codecraftkit/utils";
+const { handlePagination } = pkg;
 
-const SubCategories = async (_, { filters = {} }) => {
+const SubCategories = async (_, { filters = {}, options = {} }) => {
   try {
-    const { categoryId } = filters;
+    const { skip, limit } = handlePagination(options);
+    const { categoryId, search, _id } = filters;
     let query = {};
     if (categoryId) {
-      query = { categoryId };
+      query =  {categoryId} ;
     }
-    const subCategories = await SubCategory.aggregate([])
+    if (_id) {
+      query =  {_id} ;
+    }
+    if (search) {
+      const like = { $regex: search, $options: "i" };
+      query = {
+        $or: [
+          { name: like },
+        ],
+      };
+    }
+    const subCategories = SubCategory.aggregate([])
       .match(query)
       .lookup({
         from: "products",
@@ -22,23 +36,19 @@ const SubCategories = async (_, { filters = {} }) => {
         foreignField: "_id",
         as: "category",
       })
-      .lookup({
-        from: "categories",
-        localField: "categoryId",
-        foreignField: "_id",
-        as: "category",
-      })
       .addFields({
         nameLower: { $toLower: "$name" }, // Agregar campo con nombre en minúscula
       })
       .sort({ nameLower: 1 })
       .unwind({ path: "$category", preserveNullAndEmptyArrays: true });
-
-    return subCategories;
+      if (skip) subCategories.skip(skip);
+    if (limit) subCategories.limit(limit);
+    return await subCategories;
   } catch (error) {
     return error;
   }
 };
+const subCategoriesTotal = async () => await SubCategory.count();
 const SubCategory_register = async (_, { subCategoryData = {} }) => {
   try {
     const { name, categoryId } = subCategoryData;
@@ -60,7 +70,7 @@ const SubCategory_register = async (_, { subCategoryData = {} }) => {
 };
 const SubCategory_update = async (_, { subCategoryData = {} }) => {
   try {
-    await SubCategory.findByIdAndUpdate(subCategoryData._id, subCategoryData, {
+    await SubCategory.findOneAndUpdate(subCategoryData._id, subCategoryData, {
       new: true,
     });
     return true;
@@ -92,6 +102,7 @@ const SubCategory_delete = async (_, { _id }) => {
 export const subCategoryResolvers = {
   Query: {
     SubCategories,
+    subCategoriesTotal,
   },
   Mutation: {
     SubCategory_delete,

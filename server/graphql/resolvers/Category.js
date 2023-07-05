@@ -1,14 +1,25 @@
 import Category from "../../models/Category.js";
 import { v4 as uuidv4 } from "uuid";
+import pkg from "@codecraftkit/utils";
+const { handlePagination } = pkg;
 
-const Categories = async (_, { filters = {} }) => {
+const Categories = async (_, { filters = {}, options = {} }) => {
   try {
+    const { skip, limit } = handlePagination(options);
     let query = {};
-    const {_id} = filters
+    const { _id, search } = filters;
     if (_id) {
-      query = { _id }
+      query = { _id };
     }
-    const categories = await Category.aggregate([])
+    if (search) {
+      const like = { $regex: search, $options: "i" };
+      query = {
+        $or: [
+          { name: like },
+        ],
+      };
+    }
+    const categories = Category.aggregate([])
       .match(query)
       .lookup({
         from: "products",
@@ -23,15 +34,17 @@ const Categories = async (_, { filters = {} }) => {
         as: "subCategories",
       })
       .addFields({
-        nameLower: { $toLower: "$name" } // Agregar campo con nombre en minúscula
+        nameLower: { $toLower: "$name" }, // Agregar campo con nombre en minúscula
       })
-      .sort({ nameLower: 1 }) 
-    return categories;
+      .sort({ nameLower: 1 });
+    if (skip) categories.skip(skip);
+    if (limit) categories.limit(limit);
+    return await categories;
   } catch (error) {
     return error;
   }
 };
-
+const categoriesTotal = async () => await Category.count();
 const Category_register = async (_, { categoryData = {} }) => {
   try {
     const { name } = categoryData;
@@ -74,7 +87,7 @@ const Category_save = async (_, { categoryData = {} }) => {
 };
 const Category_delete = async (_, { _id }) => {
   try {
-    await Category.findOneAndDelete({_id});
+    await Category.findOneAndDelete({ _id });
     return true;
   } catch (error) {
     return error;
@@ -84,6 +97,7 @@ const Category_delete = async (_, { _id }) => {
 export const categoryResolvers = {
   Query: {
     Categories,
+    categoriesTotal,
   },
   Mutation: {
     Category_delete,

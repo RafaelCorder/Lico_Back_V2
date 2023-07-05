@@ -5,6 +5,7 @@ export const rolType = gql`
     _id:String
     name:String
     image: String
+    search:String
   }
   type Query {
     Rols: [Rol]

@@ -29,7 +29,9 @@ const whiteListRequest = [
   "Companies",
   "Providers",
   "Provider_save",
-  "Category_save"
+  "Category_save",
+  "providers",
+  "Provider_delete",
 ];
 
 export async function startApolloServer(typeDefs, resolvers) {

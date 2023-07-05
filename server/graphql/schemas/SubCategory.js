@@ -2,15 +2,18 @@ import { gql } from "graphql-tag";
 export const subCategoryType = gql`
   input Filters_subcategory{
     categoryId: String
+    search:String
   }
   input Property_data_subCategory{
     _id:String
     name: String
     image: String
     categoryId: String
+    
   }
   type Query {
-    SubCategories(filters:Filters_subcategory): [SubCategory]
+    SubCategories(filters:Filters_subcategory, options: Options): [SubCategory]
+    subCategoriesTotal:Int
   }
   
   type Mutation {

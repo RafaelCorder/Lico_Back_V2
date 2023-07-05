@@ -23,6 +23,7 @@ export const productType = gql`
   }
   type Query {
     Products(filters: Product_filters, options: Options): [Product]
+    productsTotal:Int
   }
   type Mutation {
     Product_save(productData: Product_data): String

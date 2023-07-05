@@ -2,8 +2,8 @@ import {userType} from './schemas/User.js'
 import {userResolvers} from './resolvers/User.js'
 import {rolType} from './schemas/Rol.js'
 import {rolResolvers} from './resolvers/Rol.js'
-import {sizeType} from './schemas/Size.js'
-import {sizeResolvers} from './resolvers/Size.js'
+import {providersType} from './schemas/Providers.js'
+import {providersResolvers} from './resolvers/Providers.js'
 import {genderType} from './schemas/Gender.js'
 import {genderResolvers} from './resolvers/Gender.js'
 import {categoryType} from './schemas/Category.js'
@@ -12,12 +12,9 @@ import {subCategoryType} from './schemas/SubCategory.js'
 import {subCategoryResolvers} from './resolvers/SubCategory.js'
 import {productType} from './schemas/Product.js'
 import {productResolvers} from './resolvers/Product.js'
-import {brandType} from './schemas/Brand.js'
-import {brandResolvers} from './resolvers/Brand.js'
-import {carType} from './schemas/Car.js'
-import {carResolvers} from './resolvers/Car.js'
-import {chatType} from './schemas/Chat.js'
-import {chatResolvers} from './resolvers/Chat.js'
+import {companyType} from './schemas/Company.js'
+import {companyResolvers} from './resolvers/Company.js'
+
 
 import { PubSub } from "graphql-subscriptions";
 export const pubsub = new PubSub();
@@ -28,11 +25,9 @@ export const resolvers = [
   genderResolvers,
   categoryResolvers,
   productResolvers,
-  brandResolvers,
-  carResolvers,
   subCategoryResolvers,
-  chatResolvers,
-  sizeResolvers,
+  companyResolvers,
+  providersResolvers
 ];
 
 export const typeDefs = [
@@ -41,9 +36,7 @@ export const typeDefs = [
   genderType,
   categoryType,
   productType,
-  brandType,
-  carType,
   subCategoryType,
-  chatType,
-  sizeType,
+  companyType,
+  providersType,
 ];

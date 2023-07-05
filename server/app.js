@@ -24,7 +24,12 @@ const whiteListRequest = [
   "Products",
   "Users",
   "getChats",
-  "Product_delete"
+  "Product_delete",
+  "Company_save",
+  "Companies",
+  "Providers",
+  "Provider_save",
+  "Category_save"
 ];
 
 export async function startApolloServer(typeDefs, resolvers) {

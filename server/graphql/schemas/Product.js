@@ -4,17 +4,10 @@ export const productType = gql`
   input Product_filters {
     _id: String
     search: String
-    genderId: String
     categoryId: String
     subCategoryId: String
-    brandId: String
-    child: Boolean
   }
-  input Size_input {
-    name: String
-    available: Boolean
-    stock: Int
-  }
+  
   input Product_data {
     _id: String
     name: String
@@ -22,14 +15,10 @@ export const productType = gql`
     amount: Int
     iva: Float
     isRemove: Boolean
-    genderId: String
     categoryId: String
     subCategoryId: String
-    brandId: String
-    child: Boolean
     image: Upload
     soldCount: Int
-    size: [Size_input]
     description: String
   }
   type Query {
@@ -42,11 +31,6 @@ export const productType = gql`
   type Subscription {
     subNewProduct: Product
   }
-  type Size {
-    name: String
-    available: Boolean
-    stock: Int
-  }
   type Product {
     _id: String
     name: String
@@ -55,19 +39,13 @@ export const productType = gql`
     soldCount: Int
     iva: Float
     isRemove: Boolean
-    genderId: String
     categoryId: String
     subCategoryId: String
-    brandId: String
-    child: Boolean
     createdAt: String
     updatedAt: String
     image: String
-    gender: Gender
     category: Category
     subCategory: SubCategory
-    brand: Brand
-    size: [Size]
     description: String
   }
 `;

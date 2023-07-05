@@ -10,13 +10,7 @@ const Genders = async (_,{filters={}}) => {
     }
     const genders = await Gender.aggregate([])
     .match(query)
-    .lookup({
-      from: "products",
-      localField: "_id",
-      foreignField: "genderId",
-      as: "products",
-    })
-    .unwind({ path: "$brand", preserveNullAndEmptyArrays: true })
+    
     return genders;
   } catch (error) {
     return error;

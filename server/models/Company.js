@@ -8,6 +8,11 @@ const Schema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    passwords:[
+      {
+        type: String,
+      }
+    ], 
     address: {
       type: String,
     },

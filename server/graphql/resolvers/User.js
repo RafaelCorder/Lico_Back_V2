@@ -1,11 +1,12 @@
 import User from "../../models/User.js";
-import Rol from "../../models/Rol.js";
 import { Avatars } from "../../config/avatar.js";
 import { v4 as uuidv4 } from "uuid";
 import pkg from "@codecraftkit/utils";
 const { handlePagination } = pkg;
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken"
+import Company from "../../models/Company.js";
+import Rol from "../../models/Rol.js";
 
 const randomIndex = Math.floor(Math.random() * Avatars.length);
 const randomAvatar = Avatars[randomIndex];
@@ -30,7 +31,6 @@ const Users = async (_, { filters = {}, options = {} }, ctx) => {
         $or: [
           { fullName: like },
           { nit: like },
-          { telefono: like },
           { email: like },
         ],
       };
@@ -48,12 +48,6 @@ const Users = async (_, { filters = {}, options = {} }, ctx) => {
         localField: "genderId",
         foreignField: "_id",
         as: "gender",
-      })
-      .lookup({
-        from: "cars",
-        localField: "_id",
-        foreignField: "userId",
-        as: "cars",
       })
       .unwind({ path: "$rol", preserveNullAndEmptyArrays: true })
       .unwind({ path: "$gender", preserveNullAndEmptyArrays: true })
@@ -73,17 +67,17 @@ const User_login = async (_, { userLogin }, context) => {
       expiresIn: '24h'
     };
     let query = { email }
-    const user = await User.findOne(query);
-    // const users = await User.aggregate([])
-    // .match(query)
-    // .lookup({
-    //   from: "rols",
-    //   localField: "rolId",
-    //   foreignField: "_id",
-    //   as: "rol",
-    // })
-    // .unwind({ path: "$rol", preserveNullAndEmptyArrays: true })
-    // const user = users[0]
+    //const user = await User.findOne(query);
+    const users = await User.aggregate([])
+    .match(query)
+    .lookup({
+      from: "rols",
+      localField: "rolId",
+      foreignField: "_id",
+      as: "rol",
+    })
+    .unwind({ path: "$rol", preserveNullAndEmptyArrays: true })
+    const user = users[0]
     if (user) {
       const storedPasswordHash = user.password;
       const handlePass = bcrypt.compareSync(password, storedPasswordHash);
@@ -105,29 +99,42 @@ const User_login = async (_, { userLogin }, context) => {
 };
 const User_register = async (_, { userData }) => {
   try {
-    const { fullName, nit, phone, email, address, password, confirmPassword = "", genderId, rolId } = userData;
-    const userFound = await User.find({ email });
+    const companies = await Company.find()
+    const { fullName, nit, phone, email, address, password, confirmPassword = "", genderId, rolPassword } = userData;
+    
+    const indexPassword = companies[0].passwords.indexOf(rolPassword)
+    
+    if (indexPassword === -1) {
+      return false
+    }else{
+      const roles = await Rol.find()
+      const rol = roles[indexPassword]
+      const userFound = await User.find({ email });
 
-    if (userFound.length === 0 && password === confirmPassword) {
-      const hashedPassword = await bcrypt.hash(password, 12);
-      const user = new User({
-        _id: uuidv4(),
-        fullName,
-        nit,
-        phone,
-        email,
-        address,
-        password: hashedPassword,
-        rolId,
-        genderId,
-        avatar: randomAvatar.url,
-        background: "#FFF",
-      });
-      await user.save();
-      return true;
-    } else {
-      return false;
+      if (userFound.length === 0 && password === confirmPassword) {
+        const hashedPassword = await bcrypt.hash(password, 12);
+        const user = new User({
+          _id: uuidv4(),
+          fullName,
+          nit,
+          phone,
+          email,
+          address,
+          password: hashedPassword,
+          rolId: rol._id,
+          genderId,
+          avatar: randomAvatar.url,
+          background: "#FFF",
+        });
+        await user.save();
+        return true;
+      } else {
+        return false;
+      }
+      
     }
+    
+    
   } catch (error) {
     return error;
   }

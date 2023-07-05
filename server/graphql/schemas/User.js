@@ -28,6 +28,7 @@ scalar JSONObject
     email: String
     password: String
     confirmPassword: String
+    rolPassword: String
     rolId: String
     genderId: String
     isRemove: Boolean
@@ -56,6 +57,5 @@ scalar JSONObject
     rolId: String
     rol: Rol
     gender:Gender
-    cars: [Car]
   }
 `;

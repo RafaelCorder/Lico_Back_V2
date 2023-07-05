@@ -10,18 +10,18 @@ const { handlePagination } = pkg;
 
 const Products = async (_, { filters = {}, options = {} }) => {
   try {
-    const { _id, search, genderId, categoryId, subCategoryId, brandId, child } =
+    const { _id, search, categoryId, subCategoryId } =
       filters;
     const { skip, limit } = handlePagination(options);
     let query = { isRemove: false };
     if (_id) {
       query = { _id, isRemove: false };
     }
-    if (genderId && !brandId) {
-      query = { genderId, isRemove: false };
+    if (categoryId) {
+      query = { categoryId, isRemove: false };
     }
-    if (genderId && brandId) {
-      query = { genderId, brandId, isRemove: false };
+    if (subCategoryId) {
+      query = { subCategoryId, isRemove: false };
     }
     if (search) {
       const like = { $regex: search, $options: "i" };
@@ -32,12 +32,6 @@ const Products = async (_, { filters = {}, options = {} }) => {
     }
     const products = Product.aggregate([])
       .match(query)
-      .lookup({
-        from: "genders",
-        localField: "genderId",
-        foreignField: "_id",
-        as: "gender",
-      })
       .lookup({
         from: "categories",
         localField: "categoryId",
@@ -50,18 +44,10 @@ const Products = async (_, { filters = {}, options = {} }) => {
         foreignField: "_id",
         as: "subCategory",
       })
-      .lookup({
-        from: "brands",
-        localField: "brandId",
-        foreignField: "_id",
-        as: "brand",
-      })
       .addFields({
         nameLower: { $toLower: "$name" }, // Agregar campo con nombre en minúscula
       })
       .sort({ nameLower: 1 })
-      .unwind({ path: "$gender", preserveNullAndEmptyArrays: true })
-      .unwind({ path: "$brand", preserveNullAndEmptyArrays: true })
       .unwind({ path: "$category", preserveNullAndEmptyArrays: true })
       .unwind({ path: "$subCategory", preserveNullAndEmptyArrays: true });
     if (skip) products.skip(skip);
@@ -77,24 +63,16 @@ const Product_register = async (_, { productData }) => {
       name,
       price,
       iva,
-      genderId,
       categoryId,
       subCategoryId,
-      child,
-      brandId,
       image,
-      size,
       description,
     } = productData;
 
     const productFound = await Product.find({ name });
 
     if (productFound.length === 0) {
-      const amount = size.reduce(
-        (total, sizeItem) => total + sizeItem.stock,
-        0
-      );
-      let url = null;
+      let url = "https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg";
       if (image) {
         const newImage = await Image_Save(image, "products");
         url = newImage.secure_url;
@@ -106,12 +84,8 @@ const Product_register = async (_, { productData }) => {
         amount,
         iva,
         image: url,
-        genderId,
         categoryId,
         subCategoryId,
-        child,
-        brandId,
-        size,
         description,
       });
       const newProduct = await product.save();

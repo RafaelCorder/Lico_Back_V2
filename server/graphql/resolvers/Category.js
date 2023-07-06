@@ -1,4 +1,5 @@
 import Category from "../../models/Category.js";
+import SubCategory from "../../models/SubCategory.js";
 import { v4 as uuidv4 } from "uuid";
 import pkg from "@codecraftkit/utils";
 const { handlePagination } = pkg;
@@ -88,6 +89,7 @@ const Category_save = async (_, { categoryData = {} }) => {
 const Category_delete = async (_, { _id }) => {
   try {
     await Category.findOneAndDelete({ _id });
+    await SubCategory.deleteMany({categoryId:_id})
     return true;
   } catch (error) {
     return error;

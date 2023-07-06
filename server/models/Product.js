@@ -40,7 +40,15 @@ const Schema = new mongoose.Schema(
     },
     description:{
       type: String,
-    }
+    },
+    isLeave: {
+      type: Number,
+      default: 0,
+    },
+    isStay: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

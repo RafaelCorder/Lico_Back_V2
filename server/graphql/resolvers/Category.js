@@ -17,6 +17,7 @@ const Categories = async (_, { filters = {}, options = {} }) => {
       query = {
         $or: [
           { name: like },
+          { _id: like },
         ],
       };
     }

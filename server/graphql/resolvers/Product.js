@@ -7,29 +7,31 @@ import { pubsub } from "../schema.js";
 import cloudinary from "cloudinary";
 const { handlePagination } = pkg;
 
-
 const Products = async (_, { filters = {}, options = {} }) => {
   try {
-    const { _id, search, categoryId, subCategoryId } =
-      filters;
+    const { _id, search, categoryId, subCategoryId } = filters;
     const { skip, limit } = handlePagination(options);
     let query = { isRemove: false };
+
     if (_id) {
-      query = { _id, isRemove: false };
+      query._id = _id;
     }
+
     if (categoryId) {
-      query = { categoryId, isRemove: false };
+      query.categoryId = categoryId;
     }
+
     if (subCategoryId) {
-      query = { subCategoryId, isRemove: false };
+      query.subCategoryId = subCategoryId;
     }
+
     if (search) {
       const like = { $regex: search, $options: "i" };
-      query = {
-        $or: [{ name: like }],
-        isRemove: false,
-      };
+      query.$or = [{ name: like }];
     }
+
+    query.isRemove = false;
+
     const products = Product.aggregate([])
       .match(query)
       .lookup({
@@ -45,24 +47,30 @@ const Products = async (_, { filters = {}, options = {} }) => {
         as: "subCategory",
       })
       .addFields({
-        nameLower: { $toLower: "$name" }, // Agregar campo con nombre en minúscula
+        nameLower: { $toLower: "$name" },
       })
       .sort({ nameLower: 1 })
       .unwind({ path: "$category", preserveNullAndEmptyArrays: true })
       .unwind({ path: "$subCategory", preserveNullAndEmptyArrays: true });
+
     if (skip) products.skip(skip);
     if (limit) products.limit(limit);
+
     return await products;
   } catch (error) {
     return error;
   }
 };
+
 const productsTotal = async () => await Product.count();
 const Product_register = async (_, { productData }) => {
   try {
     const {
       name,
       price,
+      amount,
+      isStay,
+      isLeave,
       iva,
       categoryId,
       subCategoryId,
@@ -71,9 +79,9 @@ const Product_register = async (_, { productData }) => {
     } = productData;
 
     const productFound = await Product.find({ name });
-
     if (productFound.length === 0) {
-      let url = "https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg";
+      let url =
+        "https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg";
       if (image) {
         const newImage = await Image_Save(image, "products");
         url = newImage.secure_url;
@@ -82,6 +90,8 @@ const Product_register = async (_, { productData }) => {
         _id: uuidv4(),
         name,
         price,
+        isStay,
+        isLeave,
         amount,
         iva,
         image: url,
@@ -128,11 +138,11 @@ const Product_save = async (_, { productData = {} }) => {
   }
 };
 const Product_delete = async (_, { _id }) => {
-  const product = await Product.findOne({_id});
+  const product = await Product.findOne({ _id });
   try {
     const publicId = product.image.match(/\/v\d+\/(\w+\/\w+)\./)[1];
     await cloudinary.uploader.destroy(publicId);
-    await Product.findOneAndDelete({_id});
+    await Product.findOneAndDelete({ _id });
     return true;
   } catch (error) {
     return error;
@@ -140,7 +150,6 @@ const Product_delete = async (_, { _id }) => {
 };
 const subNewProduct = {
   subscribe: () => {
-    console.log("suscrito");
     return pubsub.asyncIterator(["CREATE_PRODUCT"]);
   },
 };

@@ -12,12 +12,14 @@ export const productType = gql`
     _id: String
     name: String
     price: Float
+    isStay:Float
+    isLeave:Float
     amount: Int
     iva: Float
     isRemove: Boolean
     categoryId: String
     subCategoryId: String
-    image: Upload
+    image:Upload
     soldCount: Int
     description: String
   }
@@ -36,6 +38,8 @@ export const productType = gql`
     _id: String
     name: String
     price: Float
+    isStay:Float
+    isLeave:Float
     amount: Int
     soldCount: Int
     iva: Float

@@ -2,6 +2,8 @@ import {userType} from './schemas/User.js'
 import {userResolvers} from './resolvers/User.js'
 import {rolType} from './schemas/Rol.js'
 import {rolResolvers} from './resolvers/Rol.js'
+import {tableType} from './schemas/Table.js'
+import {tableResolvers} from './resolvers/Table.js'
 import {providersType} from './schemas/Providers.js'
 import {providersResolvers} from './resolvers/Providers.js'
 import {genderType} from './schemas/Gender.js'
@@ -27,7 +29,8 @@ export const resolvers = [
   productResolvers,
   subCategoryResolvers,
   companyResolvers,
-  providersResolvers
+  providersResolvers,
+  tableResolvers,
 ];
 
 export const typeDefs = [
@@ -39,4 +42,5 @@ export const typeDefs = [
   subCategoryType,
   companyType,
   providersType,
+  tableType,
 ];

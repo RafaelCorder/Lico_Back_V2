@@ -1,24 +1,29 @@
 import { gql } from "graphql-tag";
 export const billType = gql`
-
-  input Products{
-    name: String,
+  input Bill_data{
     _id:String
+    tableId:String
+    total: Float
+    productId: String
+    amount:Int
+  }
+  input Filters_bills {
+    _id:String
+    tableId:String
   }
   type Query {
-    Bills(filters: Property_data, options: Options): [Category]
+    Bills(filters: Filters_bills, options: Options): [Bill]
     billsTotal:Int
   }
   type Mutation {
-    Bill_save(categoryData: Property_data): Boolean
+    Bill_save(billData: Bill_data): String
     Bill_delete(_id: String!): Boolean
   }
   type Bill {
     _id: String
-    name: String
     tableId:String
     total: Float
-    products: [Products]
+    products: [Product]
     isPaid: Boolean
     isRemove: Boolean
   }

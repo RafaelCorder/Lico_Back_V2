@@ -20,6 +20,7 @@ export const productType = gql`
     categoryId: String
     subCategoryId: String
     image:Upload
+    url:String
     soldCount: Int
     description: String
   }
@@ -49,6 +50,7 @@ export const productType = gql`
     createdAt: String
     updatedAt: String
     image: String
+    url:String
     category: Category
     subCategory: SubCategory
     description: String

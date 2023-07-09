@@ -16,6 +16,8 @@ import {productType} from './schemas/Product.js'
 import {productResolvers} from './resolvers/Product.js'
 import {companyType} from './schemas/Company.js'
 import {companyResolvers} from './resolvers/Company.js'
+import {billType} from './schemas/Bill.js'
+import {billResolvers} from './resolvers/Bill.js'
 
 
 import { PubSub } from "graphql-subscriptions";
@@ -31,6 +33,7 @@ export const resolvers = [
   companyResolvers,
   providersResolvers,
   tableResolvers,
+  billResolvers
 ];
 
 export const typeDefs = [
@@ -43,4 +46,5 @@ export const typeDefs = [
   companyType,
   providersType,
   tableType,
+  billType,
 ];

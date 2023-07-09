@@ -1,7 +1,48 @@
 import Table from "../../models/Table.js";
 import { v4 as uuidv4 } from "uuid";
+import pkg from "@codecraftkit/utils";
+const { handlePagination } = pkg;
 
-const Tables = async () => await Table.find();
+const Tables = async (_, { filters = {}, options = {} }) => {
+  try {
+    const { skip, limit } = handlePagination(options);
+    let query = {};
+    const { _id, search } = filters;
+    if (_id) {
+      query._id =  _id ;
+    }
+    if (search) {
+      const like = { $regex: search, $options: "i" };
+      query.$or = [{ name: like }];
+    }
+    const tables = Table.aggregate([])
+      .match(query)
+      .lookup({
+        from: "bills",
+        let: { tableId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ["$tableId", "$$tableId"] }, { $eq: ["$isPaid", false] }]
+              }
+            }
+          }
+        ],
+        as: "bills"
+      })
+      .addFields({
+        nameLower: { $toLower: "$name" }, // Agregar campo con nombre en minúscula
+      })
+      .sort({ nameLower: 1 });
+    if (skip) tables.skip(skip);
+    if (limit) tables.limit(limit);
+    return await tables;
+  } catch (error) {
+    return error;
+  }
+};
+// const Tables = async () => await Table.find();
 
 const Table_register = async (_, { tableData={} }) => {
   try {

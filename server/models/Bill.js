@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import Product from "./Product.js"
 const Schema = new mongoose.Schema(
   {
     _id: {
@@ -21,10 +22,7 @@ const Schema = new mongoose.Schema(
       default: false,
     },
     products:[
-      {
-        _id:String,
-        name:String
-      }
+      Product.schema 
     ]
   },
   {

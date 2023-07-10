@@ -15,6 +15,10 @@ const Schema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isStay:{
+      type: Boolean,
+      default:false
+    }
   },
   {
     timestamps: true,

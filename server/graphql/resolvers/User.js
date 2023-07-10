@@ -86,6 +86,7 @@ const User_login = async (_, { userLogin }, context) => {
           ...user
         }
         const token = jwt.sign(payload, process.env.SECRET, OPTIONS)
+        
         return token;
       } else {
         return null;

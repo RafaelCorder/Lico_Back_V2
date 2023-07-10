@@ -15,5 +15,6 @@ export const tableType = gql`
     _id: String
     name:String
     bills:[Bill]
+    isStay:Boolean
   }
 `;

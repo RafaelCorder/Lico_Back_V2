@@ -24,6 +24,7 @@ export const billType = gql`
     tableId:String
     total: Float
     products: [Product]
+    table:Table
     isPaid: Boolean
     isRemove: Boolean
   }

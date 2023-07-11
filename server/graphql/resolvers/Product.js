@@ -77,7 +77,6 @@ const Product_register = async (_, { productData }) => {
       image,
       description,
     } = productData;
-
     const productFound = await Product.find({ name });
     if (productFound.length === 0) {
       let url =

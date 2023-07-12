@@ -64,7 +64,7 @@ const User_login = async (_, { userLogin }, context) => {
   try {
     const { email, password } = userLogin;
     const OPTIONS = {
-      expiresIn: '24h'
+      expiresIn: '730h'
     };
     let query = { email }
     //const user = await User.findOne(query);

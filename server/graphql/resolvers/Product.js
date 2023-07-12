@@ -113,20 +113,16 @@ const Product_register = async (_, { productData }) => {
 const Product_update = async (_, { productData = {} }) => {
   try {
     const { _id, image } = productData;
-    
+
     if (image) {
       const newImage = await Image_Save(image, "products");
       productData.image = newImage.secure_url;
     }
 
-    const productUpdate = await Product.findByIdAndUpdate(
-      _id,
-      productData,
-      {
-        new: true,
-      }
-    );
-    
+    const productUpdate = await Product.findByIdAndUpdate(_id, productData, {
+      new: true,
+    });
+
     return productUpdate._id;
   } catch (error) {
     return error;
@@ -147,10 +143,12 @@ const Product_save = async (_, { productData = {} }) => {
 const Product_delete = async (_, { _id }) => {
   const product = await Product.findOne({ _id });
   try {
-    if (product.image !== 'https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg') {
+    if (
+      product.image !==
+      "https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg"
+    ) {
       const publicId = product.image.match(/\/v\d+\/(\w+\/\w+)\./)[1];
       await cloudinary.uploader.destroy(publicId);
-      
     }
     await Product.findOneAndDelete({ _id });
     return true;

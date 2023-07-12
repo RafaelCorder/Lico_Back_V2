@@ -112,13 +112,6 @@ const Bill_update_Copy2 = async (_, { billData = {} }) => {
         }
       });
     }
-    
-    
-    
-      console.log(newProducts);
-
-    
-
       await Bill.findByIdAndUpdate(_id, { products: newProducts }, { new: true });
 
     return true;
@@ -150,7 +143,7 @@ const Bill_update = async (_, { billData = {} }) => {
     if (!newProducts.some((existingProduct) => existingProduct._id === newProduct._id)) {
       newProducts.push(newProduct);
     }
-    console.log("--5654---",newProducts);
+   
  
     
     

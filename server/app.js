@@ -1,5 +1,3 @@
-import dotenv from 'dotenv';
-dotenv.config();
 import express from "express";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import { WebSocketServer } from "ws";
@@ -11,7 +9,8 @@ import http from "http";
 import { ApolloServerPluginLandingPageProductionDefault } from "@apollo/server/plugin/landingPage/default";
 import jwt from "jsonwebtoken";
 import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs";
-
+import dotenv from 'dotenv';
+dotenv.config();
 const whiteListRequest = [
   "IntrospectionQuery",
   "User_login",

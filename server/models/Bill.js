@@ -13,17 +13,17 @@ const Schema = new mongoose.Schema(
       type: Number,
       default: 0
     },
-    isPaid: {
-      type: Boolean,
-      default: false,
-    },
     isRemove: {
       type: Boolean,
       default: false,
     },
     products:[
       Product.schema 
-    ]
+    ],
+    paymentMethod:{
+      type: String,
+      default: "Efectivo"
+    }
   },
   {
     timestamps: true,

@@ -17,6 +17,10 @@ const Schema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isPaid: {
+      type: Boolean,
+      default: false,
+    },
     products:[
       Product.schema 
     ],

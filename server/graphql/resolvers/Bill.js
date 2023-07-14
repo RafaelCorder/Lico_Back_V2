@@ -38,18 +38,16 @@ const Bills = async (_, { filters = {}, options = {} }) => {
 const billsTotal = async () => await Bill.count();
 const Bill_register = async (_, { billData = {} }) => {
   try {
-    const { tableId } = billData;
-    const billFound = await Bill.find({ tableId, isPaid: false });
-    if (billFound.length === 0) {
-      const bill = new Bill({
-        _id: uuidv4(),
-        tableId,
-      });
-      const newBill = await bill.save();
-      return newBill._id;
-    } else {
-      return false;
-    }
+    const { tableId, total, products, paymentMethod } = billData;
+    const bill = new Bill({
+      _id: uuidv4(),
+      tableId,
+      total,
+      products,
+      paymentMethod,
+    });
+    const newBill = await bill.save();
+    return newBill._id;
   } catch (error) {
     return error;
   }
@@ -95,7 +93,7 @@ const Bill_update_Copy2 = async (_, { billData = {} }) => {
     const product = await Product.findOne({ _id: productId });
     if (!product) {
       throw new Error("Product not found");
-    }else{
+    } else {
       product.amount = amount;
       products.push(product);
       products.forEach((newProduct) => {
@@ -106,13 +104,12 @@ const Bill_update_Copy2 = async (_, { billData = {} }) => {
           const existingProduct = existingBill.products[existingProductIndex];
           existingProduct.amount += newProduct.amount; // Sumar el amount del producto existente con el amount del producto nuevo
           //newProducts.push(existingProduct)
-          
         } else {
           newProducts.push(newProduct); // Agregar el nuevo producto si no se encuentra un producto existente que coincida
         }
       });
     }
-      await Bill.findByIdAndUpdate(_id, { products: newProducts }, { new: true });
+    await Bill.findByIdAndUpdate(_id, { products: newProducts }, { new: true });
 
     return true;
   } catch (error) {
@@ -128,29 +125,27 @@ const Bill_update = async (_, { billData = {} }) => {
       throw new Error("Bill not found");
     }
     const existingProducts = existingBill.products.slice(); // Crear una copia del array existingBill.products
-    
+
     let products = [];
-    
+
     const newProduct = await Product.findOne({ _id: productId });
-    newProduct.amount = await amount
-    const newProducts = existingProducts.filter((existingProduct)=>{
+    newProduct.amount = await amount;
+    const newProducts = existingProducts.filter((existingProduct) => {
       if (existingProduct._id === newProduct._id) {
-        return existingProduct.amount+=newProduct.amount
-      }else{
-        return existingProduct
+        return (existingProduct.amount += newProduct.amount);
+      } else {
+        return existingProduct;
       }
-    })
-    if (!newProducts.some((existingProduct) => existingProduct._id === newProduct._id)) {
+    });
+    if (
+      !newProducts.some(
+        (existingProduct) => existingProduct._id === newProduct._id
+      )
+    ) {
       newProducts.push(newProduct);
     }
-   
- 
-    
-    
 
-    
-
-      await Bill.findByIdAndUpdate(_id, { products: newProducts }, { new: true });
+    await Bill.findByIdAndUpdate(_id, { products: newProducts }, { new: true });
 
     return true;
   } catch (error) {

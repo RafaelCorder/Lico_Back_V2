@@ -1,19 +1,19 @@
 import { gql } from "graphql-tag";
 export const billType = gql`
-  input Bill_data{
-    _id:String
-    tableId:String
+  input Bill_data {
+    _id: String
+    tableId: String
     total: Float
-    productId: String
-    amount:Int
+    products: [Product_data]
+    paymentMethod: String
   }
   input Filters_bills {
-    _id:String
-    tableId:String
+    _id: String
+    tableId: String
   }
   type Query {
     Bills(filters: Filters_bills, options: Options): [Bill]
-    billsTotal:Int
+    billsTotal: Int
   }
   type Mutation {
     Bill_save(billData: Bill_data): String
@@ -21,11 +21,12 @@ export const billType = gql`
   }
   type Bill {
     _id: String
-    tableId:String
+    tableId: String
     total: Float
     products: [Product]
-    table:Table
+    table: Table
     isPaid: Boolean
     isRemove: Boolean
+    paymentMethod: String
   }
 `;

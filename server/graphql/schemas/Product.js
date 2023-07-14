@@ -23,6 +23,7 @@ export const productType = gql`
     url:String
     soldCount: Int
     description: String
+    remaining:Int
   }
   type Query {
     Products(filters: Product_filters, options: Options): [Product]
@@ -54,5 +55,6 @@ export const productType = gql`
     category: Category
     subCategory: SubCategory
     description: String
+    remaining:Int
   }
 `;

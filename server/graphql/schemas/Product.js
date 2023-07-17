@@ -6,6 +6,7 @@ export const productType = gql`
     search: String
     categoryId: String
     subCategoryId: String
+    providerId:String
   }
   
   input Product_data {
@@ -20,7 +21,7 @@ export const productType = gql`
     categoryId: String
     subCategoryId: String
     image:Upload
-    url:String
+    providerId:String
     soldCount: Int
     description: String
     remaining:Int
@@ -51,7 +52,7 @@ export const productType = gql`
     createdAt: String
     updatedAt: String
     image: String
-    url:String
+    providerId:String
     category: Category
     subCategory: SubCategory
     description: String

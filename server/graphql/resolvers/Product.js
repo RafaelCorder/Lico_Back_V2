@@ -76,6 +76,7 @@ const Product_register = async (_, { productData }) => {
       subCategoryId,
       image,
       description,
+      providerId
     } = productData;
     const productFound = await Product.find({ name });
     if (productFound.length === 0) {
@@ -97,6 +98,7 @@ const Product_register = async (_, { productData }) => {
         categoryId,
         subCategoryId,
         description,
+        providerId
       });
       const newProduct = await product.save();
       pubsub.publish("CREATE_PRODUCT", {
@@ -113,19 +115,18 @@ const Product_register = async (_, { productData }) => {
 const Product_update = async (_, { productData = {} }) => {
   try {
     const { _id, image } = productData;
-
+    //console.log(productData);
     if (image) {
       const newImage = await Image_Save(image, "products");
       productData.image = newImage.secure_url;
     }
-
     const productUpdate = await Product.findByIdAndUpdate(_id, productData, {
       new: true,
     });
-
+    //console.log(productUpdate);
     return productUpdate._id;
   } catch (error) {
-    return error;
+    Promise.reject(error)
   }
 };
 const Product_save = async (_, { productData = {} }) => {

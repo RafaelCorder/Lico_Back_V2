@@ -2,6 +2,7 @@ import Bill from "../../models/Bill.js";
 import { v4 as uuidv4 } from "uuid";
 import pkg from "@codecraftkit/utils";
 import Product from "../../models/Product.js";
+import { productResolvers } from "./Product.js";
 const { handlePagination } = pkg;
 
 const Bills = async (_, { filters = {}, options = {} }) => {
@@ -39,6 +40,27 @@ const billsTotal = async () => await Bill.count();
 const Bill_register = async (_, { billData = {} }) => {
   try {
     const { tableId, total, products, paymentMethod } = billData;
+    let productsFound = [];
+    const similarProductsPromises = products.map(async (product) => {
+      const productFound = await Product.findOne({ _id: product._id }).select('-image');
+      productsFound.push(productFound);
+      return productFound;
+    });
+    const similarProducts = await Promise.all(similarProductsPromises);
+ 
+
+    for (let i = 0; i < similarProducts.length; i++) {
+      similarProducts[i].amount =
+        similarProducts[i].amount - products[i].amount;
+      similarProducts[i].soldCount =
+        similarProducts[i].soldCount + products[i].amount;
+    }
+    let productData = {};
+    await Promise.all(similarProducts.map(async (product) => {
+      productData = product;
+      await productResolvers.Mutation.Product_save(_, { productData });
+    }));
+
     const bill = new Bill({
       _id: uuidv4(),
       tableId,
@@ -52,70 +74,7 @@ const Bill_register = async (_, { billData = {} }) => {
     return error;
   }
 };
-const Bill_update_Copy = async (_, { billData = {} }) => {
-  try {
-    const { _id, products = [] } = billData;
 
-    const existingBill = await Bill.findOne({ _id });
-    if (!existingBill) {
-      throw new Error("Bill not found");
-    }
-    const newProducts = existingBill.products.slice(); // Crear una copia del array existingBill.products
-
-    products.forEach((newProduct) => {
-      const existingProductIndex = existingBill.products.findIndex(
-        (product) => product._id === newProduct._id
-      );
-      if (existingProductIndex !== -1) {
-        const existingProduct = existingBill.products[existingProductIndex];
-        existingProduct.amount += newProduct.amount; // Sumar el amount del producto existente con el amount del producto nuevo
-      } else {
-        newProducts.push(newProduct); // Agregar el nuevo producto si no se encuentra un producto existente que coincida
-      }
-    });
-
-    await Bill.findByIdAndUpdate(_id, { products: newProducts }, { new: true });
-
-    return true;
-  } catch (error) {
-    return error;
-  }
-};
-const Bill_update_Copy2 = async (_, { billData = {} }) => {
-  try {
-    const { _id, productId, amount } = billData;
-    const existingBill = await Bill.findOne({ _id });
-    if (!existingBill) {
-      throw new Error("Bill not found");
-    }
-    const newProducts = existingBill.products.slice(); // Crear una copia del array existingBill.products
-    let products = [];
-    const product = await Product.findOne({ _id: productId });
-    if (!product) {
-      throw new Error("Product not found");
-    } else {
-      product.amount = amount;
-      products.push(product);
-      products.forEach((newProduct) => {
-        const existingProductIndex = existingBill.products.findIndex(
-          (product) => product._id === newProduct._id
-        );
-        if (existingProductIndex !== -1) {
-          const existingProduct = existingBill.products[existingProductIndex];
-          existingProduct.amount += newProduct.amount; // Sumar el amount del producto existente con el amount del producto nuevo
-          //newProducts.push(existingProduct)
-        } else {
-          newProducts.push(newProduct); // Agregar el nuevo producto si no se encuentra un producto existente que coincida
-        }
-      });
-    }
-    await Bill.findByIdAndUpdate(_id, { products: newProducts }, { new: true });
-
-    return true;
-  } catch (error) {
-    return error;
-  }
-};
 const Bill_update = async (_, { billData = {} }) => {
   try {
     const { _id, productId, amount } = billData;

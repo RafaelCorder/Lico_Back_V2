@@ -36,6 +36,10 @@ const Schema = new mongoose.Schema(
       type: String,
       default: "Sin SubCategoria",
     },
+    providerId: {
+      type: String,
+      default: "Sin Proveedor",
+    },
     image: {
       type: String,
       default:

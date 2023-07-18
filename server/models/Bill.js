@@ -19,7 +19,7 @@ const Schema = new mongoose.Schema(
     },
     isPaid: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     products:[
       Product.schema 
@@ -27,7 +27,17 @@ const Schema = new mongoose.Schema(
     paymentMethod:{
       type: String,
       default: "Efectivo"
-    }
+    },
+    type:{
+      type: String,
+      default: "Venta"
+    },
+    providerId: {
+      type: String,
+      required: function () {
+        return this.type === "Compra";
+      },
+    },
   },
   {
     timestamps: true,

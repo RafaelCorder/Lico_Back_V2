@@ -39,27 +39,35 @@ const Bills = async (_, { filters = {}, options = {} }) => {
 const billsTotal = async () => await Bill.count();
 const Bill_register = async (_, { billData = {} }) => {
   try {
-    const { tableId, total, products, paymentMethod } = billData;
+    const { tableId, total, products, paymentMethod, type, providerId } =
+      billData;
+      console.log(billData);
     let productsFound = [];
     const similarProductsPromises = products.map(async (product) => {
-      const productFound = await Product.findOne({ _id: product._id }).select('-image');
+      const productFound = await Product.findOne({ _id: product._id }).select(
+        "-image"
+      );
       productsFound.push(productFound);
       return productFound;
     });
     const similarProducts = await Promise.all(similarProductsPromises);
- 
 
     for (let i = 0; i < similarProducts.length; i++) {
-      similarProducts[i].amount =
-        similarProducts[i].amount - products[i].amount;
-      similarProducts[i].soldCount =
-        similarProducts[i].soldCount + products[i].amount;
+      similarProducts[i].amount = !type
+        ? similarProducts[i].amount - products[i].amount
+        : similarProducts[i].amount + products[i].amount;
+      if (!type) {
+        similarProducts[i].soldCount =
+          similarProducts[i].soldCount + products[i].amount;
+      }
     }
     let productData = {};
-    await Promise.all(similarProducts.map(async (product) => {
-      productData = product;
-      await productResolvers.Mutation.Product_save(_, { productData });
-    }));
+    await Promise.all(
+      similarProducts.map(async (product) => {
+        productData = product;
+        await productResolvers.Mutation.Product_save(_, { productData });
+      })
+    );
 
     const bill = new Bill({
       _id: uuidv4(),
@@ -67,6 +75,8 @@ const Bill_register = async (_, { billData = {} }) => {
       total,
       products,
       paymentMethod,
+      type,
+      providerId,
     });
     const newBill = await bill.save();
     return newBill._id;

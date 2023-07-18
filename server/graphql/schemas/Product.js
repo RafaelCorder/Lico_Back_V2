@@ -55,6 +55,7 @@ export const productType = gql`
     providerId:String
     category: Category
     subCategory: SubCategory
+    provider: Providers
     description: String
     remaining:Int
   }

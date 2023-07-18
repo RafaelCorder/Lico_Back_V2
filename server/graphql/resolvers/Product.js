@@ -9,10 +9,12 @@ const { handlePagination } = pkg;
 
 const Products = async (_, { filters = {}, options = {} }) => {
   try {
-    const { _id, search, categoryId, subCategoryId } = filters;
+    const { _id, search, categoryId, subCategoryId, providerId } = filters;
     const { skip, limit } = handlePagination(options);
     let query = { isRemove: false };
-
+    if (providerId) {
+      query.providerId = providerId;
+    }
     if (_id) {
       query._id = _id;
     }
@@ -46,12 +48,19 @@ const Products = async (_, { filters = {}, options = {} }) => {
         foreignField: "_id",
         as: "subCategory",
       })
+      .lookup({
+        from: "providers",
+        localField: "providerId",
+        foreignField: "_id",
+        as: "provider",
+      })
       .addFields({
         nameLower: { $toLower: "$name" },
       })
       .sort({ nameLower: 1 })
       .unwind({ path: "$category", preserveNullAndEmptyArrays: true })
-      .unwind({ path: "$subCategory", preserveNullAndEmptyArrays: true });
+      .unwind({ path: "$subCategory", preserveNullAndEmptyArrays: true })
+      .unwind({ path: "$provider", preserveNullAndEmptyArrays: true });
 
     if (skip) products.skip(skip);
     if (limit) products.limit(limit);

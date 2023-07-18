@@ -6,10 +6,13 @@ export const billType = gql`
     total: Float
     products: [Product_data]
     paymentMethod: String
+    type: String
+    providerId: String
   }
   input Filters_bills {
     _id: String
     tableId: String
+    type: String
   }
   type Query {
     Bills(filters: Filters_bills, options: Options): [Bill]
@@ -28,5 +31,7 @@ export const billType = gql`
     isPaid: Boolean
     isRemove: Boolean
     paymentMethod: String
+    type: String
+    providerId: String
   }
 `;

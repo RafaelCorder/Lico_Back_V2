@@ -41,7 +41,7 @@ const Bill_register = async (_, { billData = {} }) => {
   try {
     const { tableId, total, products, paymentMethod, type, providerId } =
       billData;
-      console.log(billData);
+      
     let productsFound = [];
     const similarProductsPromises = products.map(async (product) => {
       const productFound = await Product.findOne({ _id: product._id }).select(
@@ -84,7 +84,6 @@ const Bill_register = async (_, { billData = {} }) => {
     return error;
   }
 };
-
 const Bill_update = async (_, { billData = {} }) => {
   try {
     const { _id, productId, amount } = billData;
@@ -121,15 +120,16 @@ const Bill_update = async (_, { billData = {} }) => {
     return error;
   }
 };
-
-const Bill_save = async (_, { billData = {} }) => {
+const Bill_save = async (_, { billData = {} },ctx,graphSettings) => {
+  
   try {
     const { _id } = billData;
-    if (_id) {
-      return await Bill_update(_, { billData });
-    } else {
-      return await Bill_register(_, { billData });
+    const options = {
+      create: Bill_register,
+      update: Bill_update
     }
+    const option = _id ? "update" : "create";
+    return await options[option](_, { billData });
   } catch (error) {
     return error;
   }

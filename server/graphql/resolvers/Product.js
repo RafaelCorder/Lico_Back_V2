@@ -141,6 +141,11 @@ const Product_update = async (_, { productData = {} }) => {
 const Product_save = async (_, { productData = {} }) => {
   try {
     const { _id } = productData;
+    const options = {
+      create: Product_register,
+      update: Product_update,
+    }
+    const option = _id?"update":"create"
     if (_id) {
       return await Product_update(_, { productData });
     } else {

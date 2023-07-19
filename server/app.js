@@ -17,24 +17,8 @@ const whiteListRequest = [
   "Genders",
   "User_save",
   "Rols",
-  "Categories",
-  "Brands",
-  "SubCategories",
-  "Products",
-  "Users",
-  "getChats",
-  "Product_delete",
   "Company_save",
   "Companies",
-  "Providers",
-  "Provider_save",
-  "Category_save",
-  "providers",
-  "Provider_delete",
-  "Product_save",
-  "Bills",
-  "Tables",
-  "Bill_save"
 ];
 
 export async function startApolloServer(typeDefs, resolvers) {
@@ -78,6 +62,7 @@ export async function startApolloServer(typeDefs, resolvers) {
     expressMiddleware(server, {
       context: async ({ req }) => {
         let { operationName, query } = req.body;
+        console.log(req);
         let session = {};
         let queryRequest = query.split("\n")[1].trim();
         if (queryRequest.includes("(")) {

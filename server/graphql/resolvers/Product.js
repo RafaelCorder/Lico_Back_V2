@@ -132,7 +132,9 @@ const Product_update = async (_, { productData = {} }) => {
     const productUpdate = await Product.findByIdAndUpdate(_id, productData, {
       new: true,
     });
-    //console.log(productUpdate);
+    pubsub.publish("UPDATE_PRODUCT", {
+      subUpdateProduct: productUpdate,
+    });
     return productUpdate._id;
   } catch (error) {
     Promise.reject(error)
@@ -171,9 +173,22 @@ const Product_delete = async (_, { _id }) => {
     return error;
   }
 };
+const Restart_soldCount = async() => {
+  try {
+    await Product.updateMany({},{$set:{soldCount:0}})
+  return true
+  } catch (e) {
+    return e
+  }
+}
 const subNewProduct = {
   subscribe: () => {
     return pubsub.asyncIterator(["CREATE_PRODUCT"]);
+  },
+};
+const subUpdateProduct = {
+  subscribe: () => {
+    return pubsub.asyncIterator(["UPDATE_PRODUCT"]);
   },
 };
 export const productResolvers = {
@@ -184,9 +199,11 @@ export const productResolvers = {
   Mutation: {
     Product_save,
     Product_delete,
+    Restart_soldCount,
   },
   Subscription: {
     subNewProduct,
+    subUpdateProduct,
   },
   Upload: GraphQLUpload,
 };

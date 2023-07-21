@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import pkg from "@codecraftkit/utils";
 import Product from "../../models/Product.js";
 import { productResolvers } from "./Product.js";
+import { pubsub } from "../schema.js";
 const { handlePagination } = pkg;
 
 const Bills = async (_, { filters = {}, options = {} }) => {
@@ -39,9 +40,8 @@ const Bills = async (_, { filters = {}, options = {} }) => {
 const billsTotal = async () => await Bill.count();
 const Bill_register = async (_, { billData = {} }) => {
   try {
-    const { tableId, total, products, paymentMethod, type, providerId } =
+    const { tableId, total, products, paymentMethod, type, providerId, seller } =
       billData;
-      
     let productsFound = [];
     const similarProductsPromises = products.map(async (product) => {
       const productFound = await Product.findOne({ _id: product._id }).select(
@@ -77,8 +77,12 @@ const Bill_register = async (_, { billData = {} }) => {
       paymentMethod,
       type,
       providerId,
+      seller,
     });
     const newBill = await bill.save();
+    pubsub.publish("CREATE_BILL", {
+      subNewBill: newBill,
+    });
     return newBill._id;
   } catch (error) {
     return error;
@@ -121,7 +125,7 @@ const Bill_update = async (_, { billData = {} }) => {
   }
 };
 const Bill_save = async (_, { billData = {} },ctx,graphSettings) => {
-  
+  console.log(billData);
   try {
     const { _id } = billData;
     const options = {
@@ -142,6 +146,11 @@ const Bill_delete = async (_, { _id }) => {
     return error;
   }
 };
+const subNewBill = {
+  subscribe: () => {
+    return pubsub.asyncIterator(["CREATE_BILL"]);
+  },
+};
 
 export const billResolvers = {
   Query: {
@@ -151,5 +160,8 @@ export const billResolvers = {
   Mutation: {
     Bill_delete,
     Bill_save,
+  },
+  Subscription: {
+    subNewBill,
   },
 };

@@ -62,7 +62,6 @@ export async function startApolloServer(typeDefs, resolvers) {
     expressMiddleware(server, {
       context: async ({ req }) => {
         let { operationName, query } = req.body;
-        console.log(req);
         let session = {};
         let queryRequest = query.split("\n")[1].trim();
         if (queryRequest.includes("(")) {

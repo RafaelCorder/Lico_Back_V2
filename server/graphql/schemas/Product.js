@@ -33,9 +33,11 @@ export const productType = gql`
   type Mutation {
     Product_save(productData: Product_data): String
     Product_delete(_id: String!): Boolean
+    Restart_soldCount:Boolean
   }
   type Subscription {
     subNewProduct: Product
+    subUpdateProduct: Product
   }
   type Product {
     _id: String

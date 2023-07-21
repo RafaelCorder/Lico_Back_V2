@@ -8,6 +8,7 @@ export const billType = gql`
     paymentMethod: String
     type: String
     providerId: String
+    seller: User_data
   }
   input Filters_bills {
     _id: String
@@ -22,6 +23,9 @@ export const billType = gql`
     Bill_save(billData: Bill_data): String
     Bill_delete(_id: String!): Boolean
   }
+  type Subscription {
+    subNewBill: Bill
+  }
   type Bill {
     _id: String
     tableId: String
@@ -33,5 +37,6 @@ export const billType = gql`
     paymentMethod: String
     type: String
     providerId: String
+    seller: User
   }
 `;

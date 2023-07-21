@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Product from "./Product.js"
+import User from "./User.js";
 const Schema = new mongoose.Schema(
   {
     _id: {
@@ -31,6 +32,16 @@ const Schema = new mongoose.Schema(
     type:{
       type: String,
       default: "Venta"
+    },
+    seller:{
+      type:{
+        _id: String,
+        fullName: String,
+        rolId: String,
+        email: String,
+        nit: String,
+        phone: String,
+      }
     },
     providerId: {
       type: String,

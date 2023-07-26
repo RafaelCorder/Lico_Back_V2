@@ -9,6 +9,7 @@ export const billType = gql`
     type: String
     providerId: String
     seller: User_data
+    company: Company_Data
   }
   input Filters_bills {
     _id: String
@@ -38,5 +39,7 @@ export const billType = gql`
     type: String
     providerId: String
     seller: User
+    company:Company
+    createdAt:String
   }
 `;

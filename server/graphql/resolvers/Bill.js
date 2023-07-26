@@ -11,13 +11,16 @@ const { handlePagination } = pkg;
 const Bills = async (_, { filters = {}, options = {} }) => {
   try {
     const { skip, limit } = handlePagination(options);
-    let query = { isPaid: false };
-    const { _id, tableId } = filters;
+    let query = { isPaid: true };
+    const { _id, tableId, type } = filters;
     if (_id) {
       query_id = _id;
     }
     if (tableId) {
       query.tableId = tableId;
+    }
+    if (type) {
+      query.type = type;
     }
     const bills = Bill.aggregate([])
       .match(query)
@@ -51,6 +54,7 @@ const Bill_register = async (_, { billData = {} }, { session }) => {
       type,
       providerId,
       seller,
+      company,
     } = billData;
     let productsFound = [];
     const similarProductsPromises = products.map(async (product) => {
@@ -94,6 +98,7 @@ const Bill_register = async (_, { billData = {} }, { session }) => {
       type,
       providerId,
       seller,
+      company,
     });
     const newBill = await bill.save();
 

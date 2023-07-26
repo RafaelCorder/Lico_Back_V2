@@ -43,6 +43,13 @@ const Schema = new mongoose.Schema(
         phone: String,
       }
     },
+    company:{
+      type:{
+        name: String,
+        address: String,
+        email: String,
+      }
+    },
     providerId: {
       type: String,
       required: function () {

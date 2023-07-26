@@ -10,6 +10,7 @@ import { ApolloServerPluginLandingPageProductionDefault } from "@apollo/server/p
 import jwt from "jsonwebtoken";
 import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs";
 import dotenv from 'dotenv';
+import { log } from "console";
 dotenv.config();
 const whiteListRequest = [
   "IntrospectionQuery",
@@ -29,7 +30,10 @@ export async function startApolloServer(typeDefs, resolvers) {
     server: httpServer,
     path: "/graphql",
   });
-  const serverCleanup = useServer({ schema }, wsServer);
+  const serverCleanup = useServer({ schema, context:(ctx)=>{
+    const {connectionParams} = ctx
+    //console.log("---5-5-5---",connectionParams);
+  } }, wsServer);
 
   const server = new ApolloServer({
     schema,
@@ -72,7 +76,7 @@ export async function startApolloServer(typeDefs, resolvers) {
         const allowedOperation =
           whiteListRequest.includes(queryRequest) ||
           whiteListRequest.includes(operationName);
-
+        //console.log("allowedOperation",allowedOperation);
         if (!allowedOperation) {
           const { authorization } = req.headers;
           const decoded = jwt.verify(authorization, process.env.SECRET);

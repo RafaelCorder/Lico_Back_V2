@@ -4,6 +4,8 @@ import pkg from "@codecraftkit/utils";
 import Product from "../../models/Product.js";
 import { productResolvers } from "./Product.js";
 import { pubsub } from "../schema.js";
+import { withFilter } from "graphql-subscriptions";
+import User from "../../models/User.js";
 const { handlePagination } = pkg;
 
 const Bills = async (_, { filters = {}, options = {} }) => {
@@ -38,10 +40,18 @@ const Bills = async (_, { filters = {}, options = {} }) => {
   }
 };
 const billsTotal = async () => await Bill.count();
-const Bill_register = async (_, { billData = {} }) => {
+const Bill_register = async (_, { billData = {} }, { session }) => {
+  //console.log(session);
   try {
-    const { tableId, total, products, paymentMethod, type, providerId, seller } =
-      billData;
+    const {
+      tableId,
+      total,
+      products,
+      paymentMethod,
+      type,
+      providerId,
+      seller,
+    } = billData;
     let productsFound = [];
     const similarProductsPromises = products.map(async (product) => {
       const productFound = await Product.findOne({ _id: product._id }).select(
@@ -52,6 +62,12 @@ const Bill_register = async (_, { billData = {} }) => {
     });
     const similarProducts = await Promise.all(similarProductsPromises);
 
+    // const similarProducts = products.filter(
+    //   async (product) =>
+    //     await Product.findOne({ _id: product._id }).select("-image")
+    // );
+
+    
     for (let i = 0; i < similarProducts.length; i++) {
       similarProducts[i].amount = !type
         ? similarProducts[i].amount - products[i].amount
@@ -80,9 +96,11 @@ const Bill_register = async (_, { billData = {} }) => {
       seller,
     });
     const newBill = await bill.save();
+
     pubsub.publish("CREATE_BILL", {
       subNewBill: newBill,
     });
+
     return newBill._id;
   } catch (error) {
     return error;
@@ -124,16 +142,17 @@ const Bill_update = async (_, { billData = {} }) => {
     return error;
   }
 };
-const Bill_save = async (_, { billData = {} },ctx,graphSettings) => {
-  console.log(billData);
+const Bill_save = async (_, { billData = {} }, ctx, graphSettings) => {
+  const { session } = ctx;
+  //console.log(session, graphSettings);
   try {
     const { _id } = billData;
     const options = {
       create: Bill_register,
-      update: Bill_update
-    }
+      update: Bill_update,
+    };
     const option = _id ? "update" : "create";
-    return await options[option](_, { billData });
+    return await options[option](_, { billData }, ctx);
   } catch (error) {
     return error;
   }
@@ -146,10 +165,20 @@ const Bill_delete = async (_, { _id }) => {
     return error;
   }
 };
+// const subNewBill = {
+//   subscribe: () => {
+//     return pubsub.asyncIterator(["CREATE_BILL"]);
+//   },
+// };
+
 const subNewBill = {
-  subscribe: () => {
-    return pubsub.asyncIterator(["CREATE_BILL"]);
-  },
+  subscribe: withFilter(
+    () => pubsub.asyncIterator(["CREATE_BILL"]),
+    (payload, variables, context) => {
+      //console.log(context);
+      return true
+    }
+  ),
 };
 
 export const billResolvers = {

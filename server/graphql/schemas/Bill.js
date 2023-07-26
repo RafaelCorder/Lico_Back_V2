@@ -24,7 +24,7 @@ export const billType = gql`
     Bill_delete(_id: String!): Boolean
   }
   type Subscription {
-    subNewBill: Bill
+    subNewBill(rol:String): Bill
   }
   type Bill {
     _id: String

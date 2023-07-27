@@ -5,7 +5,6 @@ import Product from "../../models/Product.js";
 import { productResolvers } from "./Product.js";
 import { pubsub } from "../schema.js";
 import { withFilter } from "graphql-subscriptions";
-import User from "../../models/User.js";
 const { handlePagination } = pkg;
 
 const Bills = async (_, { filters = {}, options = {} }) => {
@@ -55,6 +54,7 @@ const Bill_register = async (_, { billData = {} }, { session }) => {
       providerId,
       seller,
       company,
+      dateInfo,
     } = billData;
     let productsFound = [];
     const similarProductsPromises = products.map(async (product) => {
@@ -65,20 +65,22 @@ const Bill_register = async (_, { billData = {} }, { session }) => {
       return productFound;
     });
     const similarProducts = await Promise.all(similarProductsPromises);
-
+    console.log(similarProducts);
     // const similarProducts = products.filter(
     //   async (product) =>
     //     await Product.findOne({ _id: product._id }).select("-image")
     // );
 
-    
     for (let i = 0; i < similarProducts.length; i++) {
-      similarProducts[i].amount = !type
-        ? similarProducts[i].amount - products[i].amount
-        : similarProducts[i].amount + products[i].amount;
-      if (!type) {
-        similarProducts[i].soldCount =
-          similarProducts[i].soldCount + products[i].amount;
+      if (similarProducts[i].amount > 0) {
+          similarProducts[i].amount = !type
+            ? similarProducts[i].amount - products[i].amount
+            : similarProducts[i].amount + products[i].amount;
+          if (!type) {
+            similarProducts[i].soldCount =
+              similarProducts[i].soldCount + products[i].amount;
+          }
+        
       }
     }
     let productData = {};
@@ -99,6 +101,10 @@ const Bill_register = async (_, { billData = {} }, { session }) => {
       providerId,
       seller,
       company,
+      dateInfo,
+    });
+    similarProducts.map((product) => {
+      
     });
     const newBill = await bill.save();
 
@@ -181,7 +187,7 @@ const subNewBill = {
     () => pubsub.asyncIterator(["CREATE_BILL"]),
     (payload, variables, context) => {
       //console.log(context);
-      return true
+      return true;
     }
   ),
 };

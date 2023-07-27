@@ -10,6 +10,7 @@ export const billType = gql`
     providerId: String
     seller: User_data
     company: Company_Data
+    dateInfo: inputDateInfo
   }
   input Filters_bills {
     _id: String
@@ -25,7 +26,25 @@ export const billType = gql`
     Bill_delete(_id: String!): Boolean
   }
   type Subscription {
-    subNewBill(rol:String): Bill
+    subNewBill(rol: String): Bill
+  }
+  type dateInfo {
+    datetime: Date
+    day: Int
+    month: Int
+    year: Int
+    hours: Int
+    minuts: Int
+    seconds: Int
+  }
+  input inputDateInfo {
+    datetime: Date
+    day: Int
+    month: Int
+    year: Int
+    hours: Int
+    minuts: Int
+    seconds: Int
   }
   type Bill {
     _id: String
@@ -39,7 +58,8 @@ export const billType = gql`
     type: String
     providerId: String
     seller: User
-    company:Company
-    createdAt:String
+    company: Company
+    createdAt: String
+    dateInfo:dateInfo
   }
 `;

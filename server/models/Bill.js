@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import Product from "./Product.js"
-import User from "./User.js";
 const Schema = new mongoose.Schema(
   {
     _id: {
@@ -48,6 +47,18 @@ const Schema = new mongoose.Schema(
         name: String,
         address: String,
         email: String,
+      }
+    },
+    dateInfo:{
+      type:{
+        datetime: Date,
+        day: Number,
+        month: Number,
+        year: Number,
+        hours: Number,
+        minuts:Number,
+        seconds: Number,
+
       }
     },
     providerId: {

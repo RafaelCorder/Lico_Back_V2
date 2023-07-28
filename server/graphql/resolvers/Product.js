@@ -88,8 +88,7 @@ const Product_register = async (_, { productData }) => {
       providerId
     } = productData;
     const productFound = await Product.find({ name });
-    if (productFound.length === 0) {
-      let url =
+    let url =
         "https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg";
       if (image) {
         const newImage = await Image_Save(image, "products");
@@ -113,10 +112,12 @@ const Product_register = async (_, { productData }) => {
       pubsub.publish("CREATE_PRODUCT", {
         subNewProduct: newProduct,
       });
-      return newProduct._id;
-    } else {
-      return false;
-    }
+      if (productFound.length>0) {
+        return false
+      }else{
+        return newProduct._id;
+
+      }
   } catch (error) {
     return error;
   }
@@ -148,11 +149,7 @@ const Product_save = async (_, { productData = {} }) => {
       update: Product_update,
     }
     const option = _id?"update":"create"
-    if (_id) {
-      return await Product_update(_, { productData });
-    } else {
-      return await Product_register(_, { productData });
-    }
+    return await options[option](_, { productData })
   } catch (e) {
     return e;
   }

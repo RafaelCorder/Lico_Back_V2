@@ -11,16 +11,19 @@ const Bills = async (_, { filters = {}, options = {} }) => {
   try {
     const { skip, limit } = handlePagination(options);
     let query = { isPaid: true };
-    const { _id, tableId, type } = filters;
-    if (_id) {
-      query_id = _id;
-    }
-    if (tableId) {
-      query.tableId = tableId;
-    }
-    if (type) {
-      query.type = type;
-    }
+    const fieldTypes = {
+      "dateInfo.day": "int",
+      "dateInfo.month": "int",
+      "dateInfo.year": "int",
+    };
+    filters.forEach((filter) => {
+      const { key, value } = filter;
+      if (fieldTypes[key] === "int") {
+        query[key] = parseInt(value);
+      } else {
+        query[key] = value;
+      }
+    });
     const bills = Bill.aggregate([])
       .match(query)
       .lookup({
@@ -43,6 +46,7 @@ const Bills = async (_, { filters = {}, options = {} }) => {
 };
 const billsTotal = async () => await Bill.count();
 const Bill_register = async (_, { billData = {} }, { session }) => {
+  //console.log("hgola",billData);
   //console.log(session);
   try {
     const {
@@ -65,22 +69,21 @@ const Bill_register = async (_, { billData = {} }, { session }) => {
       return productFound;
     });
     const similarProducts = await Promise.all(similarProductsPromises);
-    console.log(similarProducts);
     // const similarProducts = products.filter(
     //   async (product) =>
     //     await Product.findOne({ _id: product._id }).select("-image")
     // );
 
     for (let i = 0; i < similarProducts.length; i++) {
-      if (similarProducts[i].amount > 0) {
-          similarProducts[i].amount = !type
+      if (similarProducts[i].amount > 0 || type === "Compra") {
+        similarProducts[i].amount =
+          type !== "Compra"
             ? similarProducts[i].amount - products[i].amount
             : similarProducts[i].amount + products[i].amount;
-          if (!type) {
-            similarProducts[i].soldCount =
-              similarProducts[i].soldCount + products[i].amount;
-          }
-        
+        if (!type) {
+          similarProducts[i].soldCount =
+            similarProducts[i].soldCount + products[i].amount;
+        }
       }
     }
     let productData = {};
@@ -103,9 +106,7 @@ const Bill_register = async (_, { billData = {} }, { session }) => {
       company,
       dateInfo,
     });
-    similarProducts.map((product) => {
-      
-    });
+    similarProducts.map((product) => {});
     const newBill = await bill.save();
 
     pubsub.publish("CREATE_BILL", {

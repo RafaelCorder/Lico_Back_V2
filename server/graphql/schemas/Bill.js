@@ -13,14 +13,12 @@ export const billType = gql`
     dateInfo: inputDateInfo
   }
   input Filters_bills {
-
-    key:String
-    value:String
-    
+    key: String
+    value: String
   }
   type Query {
     Bills(filters: [Filters_bills], options: Options): [Bill]
-    billsTotal: Int
+    billsTotal(filters:[Filters_bills]): Int
   }
   type Mutation {
     Bill_save(billData: Bill_data): String
@@ -37,6 +35,9 @@ export const billType = gql`
     hours: Int
     minuts: Int
     seconds: Int
+    dayName: String
+    monthName: String
+    weekNumber: Int
   }
   input inputDateInfo {
     datetime: Date
@@ -46,6 +47,9 @@ export const billType = gql`
     hours: Int
     minuts: Int
     seconds: Int
+    dayName: String
+    monthName: String
+    weekNumber: Int
   }
   type Bill {
     _id: String
@@ -61,6 +65,6 @@ export const billType = gql`
     seller: User
     company: Company
     createdAt: String
-    dateInfo:dateInfo
+    dateInfo: dateInfo
   }
 `;

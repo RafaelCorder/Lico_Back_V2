@@ -6,11 +6,47 @@ import { productResolvers } from "./Product.js";
 import { pubsub } from "../schema.js";
 import { withFilter } from "graphql-subscriptions";
 const { handlePagination } = pkg;
-
-const Bills = async (_, { filters = {}, options = {} }) => {
+//QUERIES
+const Bills = async (_, { filters = [], options = {} }) => {
   try {
     const { skip, limit } = handlePagination(options);
     let query = { isPaid: true };
+    const fieldTypes = {
+      "dateInfo.day": "int",
+      "dateInfo.month": "int",
+      "dateInfo.year": "int",
+      "dateInfo.weekNumber": "int",
+    };
+    filters.forEach((filter) => {
+      const { key, value } = filter;
+      if (fieldTypes[key] === "int") {
+        query[key] = parseInt(value);
+      } else {
+        query[key] = value;
+      }
+    });
+      
+    
+    const bills = Bill.aggregate([])
+      .match(query)
+      .lookup({
+        from: "tables",
+        localField: "tableId",
+        foreignField: "_id",
+        as: "table",
+      })
+      .unwind({ path: "$table", preserveNullAndEmptyArrays: true })
+      .sort({createdAt:-1})
+    if (skip) bills.skip(skip);
+    if (limit) bills.limit(limit);
+    
+    return await bills
+  } catch (error) {
+    return error;
+  }
+};
+const billsTotal = async (_,{filters=[]}) => {
+  let query = { isPaid: true };
     const fieldTypes = {
       "dateInfo.day": "int",
       "dateInfo.month": "int",
@@ -24,27 +60,11 @@ const Bills = async (_, { filters = {}, options = {} }) => {
         query[key] = value;
       }
     });
-    const bills = Bill.aggregate([])
-      .match(query)
-      .lookup({
-        from: "tables",
-        localField: "tableId",
-        foreignField: "_id",
-        as: "table",
-      })
-      .unwind({ path: "$table", preserveNullAndEmptyArrays: true })
-      .addFields({
-        nameLower: { $toLower: "$name" }, // Agregar campo con nombre en minúscula
-      })
-      .sort({ nameLower: 1 });
-    if (skip) bills.skip(skip);
-    if (limit) bills.limit(limit);
-    return await bills;
-  } catch (error) {
-    return error;
-  }
-};
-const billsTotal = async () => await Bill.count();
+    
+  return await Bill.count(query);
+}
+
+//MUTATIONS
 const Bill_register = async (_, { billData = {} }, { session }) => {
   //console.log("hgola",billData);
   //console.log(session);
@@ -59,6 +79,7 @@ const Bill_register = async (_, { billData = {} }, { session }) => {
       seller,
       company,
       dateInfo,
+
     } = billData;
     let productsFound = [];
     const similarProductsPromises = products.map(async (product) => {
@@ -106,7 +127,7 @@ const Bill_register = async (_, { billData = {} }, { session }) => {
       company,
       dateInfo,
     });
-    similarProducts.map((product) => {});
+    
     const newBill = await bill.save();
 
     pubsub.publish("CREATE_BILL", {
@@ -177,12 +198,15 @@ const Bill_delete = async (_, { _id }) => {
     return error;
   }
 };
+
+
+
+//------------------- SUBSCRIPTIONS ----------------
 // const subNewBill = {
 //   subscribe: () => {
 //     return pubsub.asyncIterator(["CREATE_BILL"]);
 //   },
 // };
-
 const subNewBill = {
   subscribe: withFilter(
     () => pubsub.asyncIterator(["CREATE_BILL"]),

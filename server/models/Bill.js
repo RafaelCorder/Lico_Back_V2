@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Product from "./Product.js"
+import Product from "./Product.js";
 const Schema = new mongoose.Schema(
   {
     _id: {
@@ -11,7 +11,7 @@ const Schema = new mongoose.Schema(
     },
     total: {
       type: Number,
-      default: 0
+      default: 0,
     },
     isRemove: {
       type: Boolean,
@@ -21,45 +21,45 @@ const Schema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    products:[
-      Product.schema 
-    ],
-    paymentMethod:{
+    products: [Product.schema],
+    paymentMethod: {
       type: String,
-      default: "Efectivo"
+      default: "Efectivo",
     },
-    type:{
+    type: {
       type: String,
-      default: "Venta"
+      default: "Venta",
     },
-    seller:{
-      type:{
+    seller: {
+      type: {
         _id: String,
         fullName: String,
         rolId: String,
         email: String,
         nit: String,
         phone: String,
-      }
+      },
     },
-    company:{
-      type:{
+    company: {
+      type: {
         name: String,
         address: String,
         email: String,
-      }
+      },
     },
-    dateInfo:{
-      type:{
+    dateInfo: {
+      type: {
         datetime: Date,
         day: Number,
         month: Number,
         year: Number,
         hours: Number,
-        minuts:Number,
+        minuts: Number,
         seconds: Number,
-
-      }
+        weekNumber:Number,
+        dayName: String,
+        monthName: String,
+      },
     },
     providerId: {
       type: String,
@@ -70,7 +70,7 @@ const Schema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    _id:false
+    _id: false,
   }
 );
 

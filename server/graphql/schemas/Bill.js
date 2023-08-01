@@ -16,8 +16,12 @@ export const billType = gql`
     key: String
     value: String
   }
+  input Filters_bills_date{
+    start: Date
+    end:Date
+  }
   type Query {
-    Bills(filters: [Filters_bills], options: Options): [Bill]
+    Bills(filters: [Filters_bills], options: Options, filters_Date:Filters_bills_date): [Bill]
     billsTotal(filters:[Filters_bills]): Int
   }
   type Mutation {

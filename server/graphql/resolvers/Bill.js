@@ -7,10 +7,10 @@ import { pubsub } from "../schema.js";
 import { withFilter } from "graphql-subscriptions";
 const { handlePagination } = pkg;
 //QUERIES
-const Bills = async (_, { filters = [], options = {} }) => {
+const Bills = async (_, { filters = [], options = {}, filters_Date = {} }) => {
   try {
     const { skip, limit } = handlePagination(options);
-    let query = { isPaid: true };
+    let query = {};
     const fieldTypes = {
       "dateInfo.day": "int",
       "dateInfo.month": "int",
@@ -25,8 +25,24 @@ const Bills = async (_, { filters = [], options = {} }) => {
         query[key] = value;
       }
     });
-      
-    
+    const startDate = new Date(filters_Date.start)
+    const endDate = new Date(filters_Date.end)
+    endDate.setDate(endDate.getDate() + 1 )
+    if (filters_Date.start && !filters_Date.end) {
+      query = {...query, "dateInfo.datetime": { $gte: startDate } };
+    }
+    if (!filters_Date.start && filters_Date.end) {
+      query = {...query, "dateInfo.datetime": { $lte: new Date(endDate.toISOString()) } };
+    }
+    if (filters_Date.start && filters_Date.end) {
+      query = {...query,
+        "dateInfo.datetime": {
+          $gte: startDate,
+          $lte: new Date(endDate.toISOString()),
+        },
+      };
+    }
+   
     const bills = Bill.aggregate([])
       .match(query)
       .lookup({
@@ -36,33 +52,33 @@ const Bills = async (_, { filters = [], options = {} }) => {
         as: "table",
       })
       .unwind({ path: "$table", preserveNullAndEmptyArrays: true })
-      .sort({createdAt:-1})
+      .sort({ createdAt: -1 });
     if (skip) bills.skip(skip);
     if (limit) bills.limit(limit);
-    
-    return await bills
+
+    return await bills;
   } catch (error) {
     return error;
   }
 };
-const billsTotal = async (_,{filters=[]}) => {
+const billsTotal = async (_, { filters = [] }) => {
   let query = { isPaid: true };
-    const fieldTypes = {
-      "dateInfo.day": "int",
-      "dateInfo.month": "int",
-      "dateInfo.year": "int",
-    };
-    filters.forEach((filter) => {
-      const { key, value } = filter;
-      if (fieldTypes[key] === "int") {
-        query[key] = parseInt(value);
-      } else {
-        query[key] = value;
-      }
-    });
-    
+  const fieldTypes = {
+    "dateInfo.day": "int",
+    "dateInfo.month": "int",
+    "dateInfo.year": "int",
+  };
+  filters.forEach((filter) => {
+    const { key, value } = filter;
+    if (fieldTypes[key] === "int") {
+      query[key] = parseInt(value);
+    } else {
+      query[key] = value;
+    }
+  });
+
   return await Bill.count(query);
-}
+};
 
 //MUTATIONS
 const Bill_register = async (_, { billData = {} }, { session }) => {
@@ -79,7 +95,6 @@ const Bill_register = async (_, { billData = {} }, { session }) => {
       seller,
       company,
       dateInfo,
-
     } = billData;
     let productsFound = [];
     const similarProductsPromises = products.map(async (product) => {
@@ -127,7 +142,7 @@ const Bill_register = async (_, { billData = {} }, { session }) => {
       company,
       dateInfo,
     });
-    
+
     const newBill = await bill.save();
 
     pubsub.publish("CREATE_BILL", {
@@ -198,8 +213,6 @@ const Bill_delete = async (_, { _id }) => {
     return error;
   }
 };
-
-
 
 //------------------- SUBSCRIPTIONS ----------------
 // const subNewBill = {

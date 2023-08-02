@@ -7,6 +7,8 @@ export const productType = gql`
     categoryId: String
     subCategoryId: String
     providerId:String
+    priceA:Float
+    priceB:Float
   }
   
   input Product_data {
@@ -60,5 +62,7 @@ export const productType = gql`
     provider: Providers
     description: String
     remaining:Int
+    priceA:Float
+    priceB:Float
   }
 `;

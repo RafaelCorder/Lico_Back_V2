@@ -124,8 +124,8 @@ const Product_register = async (_, { productData }) => {
 };
 const Product_update = async (_, { productData = {} }) => {
   try {
-    const { _id, image } = productData;
-    //console.log(productData);
+    const { _id, image, price, isLeave, isStay } = productData;
+    console.log(productData);
     if (image) {
       const newImage = await Image_Save(image, "products");
       productData.image = newImage.secure_url;

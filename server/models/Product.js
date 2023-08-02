@@ -1,4 +1,14 @@
 import mongoose from "mongoose";
+const redondeo = (number) => {
+  let decimal = number % 1;
+  let entero = Math.floor(number);
+  let multiplo = Math.floor(entero / 100) * 100;
+  if (decimal < 0.5) {
+    return parseFloat(multiplo.toFixed(2));
+  } else {
+    return parseFloat((multiplo + 100).toFixed(2));
+  }
+};
 const Schema = new mongoose.Schema(
   {
     _id: {
@@ -60,12 +70,31 @@ const Schema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    priceA: {
+      type: Number,
+    },
+    priceB: {
+      type: Number,
+    },
   },
   {
     timestamps: true,
     _id: false,
   }
 );
+// Middleware to update priceA and priceB before saving
+Schema.pre("save", function (next) {
+  this.priceA = redondeo(this.price + (this.price * this.isLeave) / 100);
+  this.priceB = redondeo(this.price + (this.price * this.isStay) / 100);
+  next();
+});
 
+// Middleware to update priceA and priceB before findOneAndUpdate
+Schema.pre("findOneAndUpdate", function (next) {
+  const updatedFields = this.getUpdate();
+  this._update.priceA = redondeo(updatedFields.price + (updatedFields.price * updatedFields.isLeave) / 100);
+  this._update.priceB = redondeo(updatedFields.price + (updatedFields.price * updatedFields.isStay) / 100);
+  next();
+});
 
 export default mongoose.model("Product", Schema);

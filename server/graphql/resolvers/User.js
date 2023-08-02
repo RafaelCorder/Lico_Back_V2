@@ -63,6 +63,7 @@ const Users = async (_, { filters = {}, options = {} }, ctx) => {
 const User_login = async (_, { userLogin }, context) => {
   try {
     const { email, password } = userLogin;
+    console.log(userLogin);
     const OPTIONS = {
       expiresIn: '730h'
     };

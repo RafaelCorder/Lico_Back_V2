@@ -10,7 +10,6 @@ import { ApolloServerPluginLandingPageProductionDefault } from "@apollo/server/p
 import jwt from "jsonwebtoken";
 import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs";
 import dotenv from 'dotenv';
-import { log } from "console";
 dotenv.config();
 const whiteListRequest = [
   "IntrospectionQuery",

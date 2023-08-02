@@ -164,7 +164,7 @@ const Bill_update = async (_, { billData = {} }) => {
     }
     const existingProducts = existingBill.products.slice(); // Crear una copia del array existingBill.products
 
-    let products = [];
+   
 
     const newProduct = await Product.findOne({ _id: productId });
     newProduct.amount = await amount;

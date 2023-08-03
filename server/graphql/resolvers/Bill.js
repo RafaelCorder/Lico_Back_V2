@@ -82,8 +82,6 @@ const billsTotal = async (_, { filters = [] }) => {
 
 //MUTATIONS
 const Bill_register = async (_, { billData = {} }, { session }) => {
-  //console.log("hgola",billData);
-  //console.log(session);
   try {
     const {
       tableId,
@@ -192,7 +190,6 @@ const Bill_update = async (_, { billData = {} }) => {
 };
 const Bill_save = async (_, { billData = {} }, ctx, graphSettings) => {
   const { session } = ctx;
-  //console.log(session, graphSettings);
   try {
     const { _id } = billData;
     const options = {
@@ -224,7 +221,6 @@ const subNewBill = {
   subscribe: withFilter(
     () => pubsub.asyncIterator(["CREATE_BILL"]),
     (payload, variables, context) => {
-      //console.log(context);
       return true;
     }
   ),

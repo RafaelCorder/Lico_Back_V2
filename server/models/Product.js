@@ -84,6 +84,13 @@ const Schema = new mongoose.Schema(
 );
 // Middleware to update priceA and priceB before saving
 Schema.pre("save", function (next) {
+    // Generar código de barras si no existe
+    if (!this._id) {
+      this._id = uuidv4();
+      const barcodeSVG = JsBarcode(this._id).svg();
+      this.barcode = barcodeSVG;
+    }
+    
   this.priceA = redondeo(this.price + (this.price * this.isLeave) / 100);
   this.priceB = redondeo(this.price + (this.price * this.isStay) / 100);
   next();
@@ -92,8 +99,12 @@ Schema.pre("save", function (next) {
 // Middleware to update priceA and priceB before findOneAndUpdate
 Schema.pre("findOneAndUpdate", function (next) {
   const updatedFields = this.getUpdate();
-  this._update.priceA = redondeo(updatedFields.price + (updatedFields.price * updatedFields.isLeave) / 100);
-  this._update.priceB = redondeo(updatedFields.price + (updatedFields.price * updatedFields.isStay) / 100);
+  this._update.priceA = redondeo(
+    updatedFields.price + (updatedFields.price * updatedFields.isLeave) / 100
+  );
+  this._update.priceB = redondeo(
+    updatedFields.price + (updatedFields.price * updatedFields.isStay) / 100
+  );
   next();
 });
 

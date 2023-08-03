@@ -27,6 +27,7 @@
     "graphql-tag": "^2.12.6",
     "graphql-upload": "^16.0.2",
     "graphql-ws": "^5.13.1",
+    "jsbarcode": "^3.11.5",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.4",
     "uuid": "^9.0.0",

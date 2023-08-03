@@ -5,6 +5,9 @@ const Schema = new mongoose.Schema(
     _id: {
       type: String,
     },
+    billNumber: {
+      type: String,
+    },
     tableId: {
       type: String,
       required: true,
@@ -29,6 +32,7 @@ const Schema = new mongoose.Schema(
     type: {
       type: String,
       default: "Venta",
+      index: true,
     },
     seller: {
       type: {
@@ -56,7 +60,7 @@ const Schema = new mongoose.Schema(
         hours: Number,
         minuts: Number,
         seconds: Number,
-        weekNumber:Number,
+        weekNumber: Number,
         dayName: String,
         monthName: String,
       },
@@ -73,5 +77,35 @@ const Schema = new mongoose.Schema(
     _id: false,
   }
 );
+Schema.pre("save", async function (next) {
+  try {
+    // Check if the document is newly created (not being updated)
+    if (this.isNew) {
+      const Bill = mongoose.model("Bill");
+      let lastBill = {};
+      if (this.type === "Venta") {
+        lastBill = await Bill.findOne(
+          { type: "Venta" },
+          {},
+          { sort: { billNumber: -1 } }
+        );
+      }
+      if (this.type === "Compra") {
+        lastBill = await Bill.findOne(
+          { type: "Compra" },
+          {},
+          { sort: { billNumber: -1 } }
+        );
+      }
+      
+      const newBillNumber = lastBill ? parseInt(lastBill.billNumber) + 1 : 1;
+      this.billNumber = newBillNumber;
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default mongoose.model("Bill", Schema);

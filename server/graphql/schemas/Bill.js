@@ -70,5 +70,6 @@ export const billType = gql`
     company: Company
     createdAt: String
     dateInfo: dateInfo
+    billNumber:String
   }
 `;

@@ -9,7 +9,7 @@ import http from "http";
 import { ApolloServerPluginLandingPageProductionDefault } from "@apollo/server/plugin/landingPage/default";
 import jwt from "jsonwebtoken";
 import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs";
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
 const whiteListRequest = [
   "IntrospectionQuery",
@@ -30,10 +30,16 @@ export async function startApolloServer(typeDefs, resolvers) {
     server: httpServer,
     path: "/graphql",
   });
-  const serverCleanup = useServer({ schema, context:(ctx)=>{
-    const {connectionParams} = ctx
-    //console.log("---5-5-5---",connectionParams);
-  } }, wsServer);
+  const serverCleanup = useServer(
+    {
+      schema,
+      context: (ctx) => {
+        const { connectionParams } = ctx;
+        //console.log("---5-5-5---",connectionParams);
+      },
+    },
+    wsServer
+  );
 
   const server = new ApolloServer({
     schema,

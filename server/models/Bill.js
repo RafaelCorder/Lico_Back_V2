@@ -77,6 +77,7 @@ const Schema = new mongoose.Schema(
     _id: false,
   }
 );
+
 Schema.pre("save", async function (next) {
   try {
     // Check if the document is newly created (not being updated)
@@ -97,7 +98,7 @@ Schema.pre("save", async function (next) {
           { sort: { billNumber: -1 } }
         );
       }
-      
+
       const newBillNumber = lastBill ? parseInt(lastBill.billNumber) + 1 : 1;
       this.billNumber = newBillNumber;
     }

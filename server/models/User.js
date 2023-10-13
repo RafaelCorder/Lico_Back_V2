@@ -32,7 +32,6 @@ const Schema = new mongoose.Schema(
     },
     genderId: {
       type: String,
-      required: [true,"El genero es requerido."],
     },
     avatar: {
       type: String,

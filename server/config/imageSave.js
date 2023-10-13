@@ -1,8 +1,8 @@
 import cloudinary from "cloudinary";
 cloudinary.config({
-  cloud_name: "dpc5w2xmy",
-  api_key: "679289965256383",
-  api_secret: "zuilx9v54c8NZtdJi0yvW_pbI-I",
+  cloud_name: "dhh725duh",
+  api_key: "987737143587565",
+  api_secret: "3vdWFG9rkyfa2t8bXLecPJuEzZE",
 });
 //CLOUDINARY
 export const Image_Save = async (image, path) => {

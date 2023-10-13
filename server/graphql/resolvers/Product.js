@@ -15,6 +15,7 @@ const Products = async (_, { filters = {}, options = {} }) => {
     if (providerId) {
       query.providerId = providerId;
     }
+
     if (_id) {
       query._id = _id;
     }
@@ -71,7 +72,8 @@ const Products = async (_, { filters = {}, options = {} }) => {
   }
 };
 
-const productsTotal = async () => await Product.count();
+const productsTotal = async () => await Product.count()
+
 const Product_register = async (_, { productData }) => {
   try {
     const {
@@ -122,12 +124,22 @@ const Product_register = async (_, { productData }) => {
     return error;
   }
 };
+
 const Product_update = async (_, { productData = {} }) => {
   try {
-    const { _id, image, price, isLeave, isStay } = productData;
+    
+    const { _id, image, price, isLeave, isStay } = productData
     if (image) {
-      const newImage = await Image_Save(image, "products");
-      productData.image = newImage.secure_url;
+      let newImage = ''
+      if (typeof image === 'string') {
+        newImage = image
+      } else{
+        const res = await Image_Save(image, "products");
+        newImage = res.secure_url      }
+      
+      productData.image = newImage;
+    }else{
+      delete productData.image
     }
     const productUpdate = await Product.findByIdAndUpdate(_id, productData, {
       new: true,
@@ -140,19 +152,21 @@ const Product_update = async (_, { productData = {} }) => {
     Promise.reject(error)
   }
 };
+
 const Product_save = async (_, { productData = {} }) => {
   try {
-    const { _id } = productData;
+   // console.log('-->', productData)
     const options = {
       create: Product_register,
       update: Product_update,
     }
-    const option = _id?"update":"create"
+    const option = productData?._id ?"update":"create"
     return await options[option](_, { productData })
   } catch (e) {
     return e;
   }
 };
+
 const Product_delete = async (_, { _id }) => {
   const product = await Product.findOne({ _id });
   try {
@@ -169,6 +183,7 @@ const Product_delete = async (_, { _id }) => {
     return error;
   }
 };
+
 const Restart_soldCount = async() => {
   try {
     await Product.updateMany({},{$set:{soldCount:0}})
@@ -177,6 +192,7 @@ const Restart_soldCount = async() => {
     return e
   }
 }
+
 const subNewProduct = {
   subscribe: () => {
     return pubsub.asyncIterator(["CREATE_PRODUCT"]);
@@ -187,6 +203,7 @@ const subUpdateProduct = {
     return pubsub.asyncIterator(["UPDATE_PRODUCT"]);
   },
 };
+
 export const productResolvers = {
   Query: {
     Products,
